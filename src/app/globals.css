@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #09090b;
+  --color-foreground: #fafafa;
+  --color-card: #111113;
+  --color-card-hover: #18181b;
+  --color-border: #27272a;
+  --color-border-subtle: #1e1e21;
+  --color-muted: #71717a;
+  --color-muted-foreground: #a1a1aa;
+  --color-accent: #3b82f6;
+  --color-accent-foreground: #dbeafe;
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-critical: #f43f5e;
+  --color-high: #f97316;
+  --color-medium: #eab308;
+  --color-low: #6b7280;
+
+  /* Category colors */
+  --color-cat-model: #8b5cf6;
+  --color-cat-tool: #3b82f6;
+  --color-cat-research: #06b6d4;
+  --color-cat-company: #f59e0b;
+  --color-cat-opensource: #22c55e;
+  --color-cat-policy: #ef4444;
+  --color-cat-market: #ec4899;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Score bar animation */
+@keyframes score-fill {
+  from { width: 0; }
+}
+
+.score-bar {
+  animation: score-fill 0.6s ease-out;
+}
