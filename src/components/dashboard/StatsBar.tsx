@@ -1,12 +1,10 @@
-import { Database, CalendarPlus, Clock3, Radio, Bell } from "lucide-react";
+import { Database, CalendarPlus, Clock3 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 interface Stats {
   totalItems: number;
   todayItems: number;
   last3dItems?: number;
-  activeSignalCount: number;
-  unreadAlerts: number;
 }
 
 function StatCard({
@@ -37,7 +35,7 @@ function StatCard({
 
 export default function StatsBar({ stats }: { stats: Stats }) {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
       <StatCard
         label="Total tracked"
         value={stats.totalItems}
@@ -55,18 +53,6 @@ export default function StatsBar({ stats }: { stats: Stats }) {
         value={stats.last3dItems ?? 0}
         icon={Clock3}
         color="text-blue-400"
-      />
-      <StatCard
-        label="Active signals"
-        value={stats.activeSignalCount}
-        icon={Radio}
-        color="text-warning"
-      />
-      <StatCard
-        label="Unread alerts"
-        value={stats.unreadAlerts}
-        icon={Bell}
-        color="text-danger"
       />
     </div>
   );

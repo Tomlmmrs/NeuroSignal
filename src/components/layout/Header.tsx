@@ -3,19 +3,17 @@
 import { type FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Activity, Bell, Loader2, Menu, Search, Settings, X } from "lucide-react";
+import { Activity, Loader2, Menu, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getActiveNavigationState } from "./navigation";
 import { usePrefetchedNavigation } from "./usePrefetchedNavigation";
 
 interface HeaderProps {
-  unreadCount?: number;
   mobileNavOpen?: boolean;
   onToggleMobileNav?: () => void;
 }
 
 export default function Header({
-  unreadCount = 0,
   mobileNavOpen = false,
   onToggleMobileNav,
 }: HeaderProps) {
@@ -72,25 +70,22 @@ export default function Header({
                 {activeItem.label}
               </p>
               <p className="hidden text-[11px] text-muted-foreground md:block">
-                Signal over noise
+                What changed, and why it matters
               </p>
             </div>
           </Link>
         </div>
 
-        <form
-          onSubmit={submitSearch}
-          className="hidden min-w-0 flex-1 justify-center sm:flex"
-        >
+        <form onSubmit={submitSearch} className="hidden min-w-0 flex-1 justify-center sm:flex">
           <div className="relative w-full max-w-xl">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
               type="search"
               name="q"
-              placeholder="Search intelligence, companies, tools, and research"
+              placeholder="Search AI developments, companies, products, and research"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="h-11 w-full rounded-2xl border border-border bg-card/90 pl-10 pr-4 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/40"
+              className="h-11 w-full rounded-2xl border border-border bg-card/90 pl-10 pr-10 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/40"
             />
             {isPending && (
               <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
@@ -98,40 +93,17 @@ export default function Header({
           </div>
         </form>
 
-        <div className="flex items-center gap-1 sm:gap-1.5">
-          <button
-            type="button"
-            onClick={() => setSearchOpen((current) => !current)}
-            className={cn(
-              "rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground sm:hidden",
-              searchOpen && "bg-card text-foreground"
-            )}
-            aria-label={searchOpen ? "Close search" : "Open search"}
-          >
-            <Search className="h-4 w-4" />
-          </button>
-
-          <button
-            type="button"
-            className="relative rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground"
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" />
-            {unreadCount > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </button>
-
-          <button
-            type="button"
-            className="hidden rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground sm:block"
-            aria-label="Settings"
-          >
-            <Settings className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setSearchOpen((current) => !current)}
+          className={cn(
+            "rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground sm:hidden",
+            searchOpen && "bg-card text-foreground"
+          )}
+          aria-label={searchOpen ? "Close search" : "Open search"}
+        >
+          <Search className="h-4 w-4" />
+        </button>
       </div>
 
       {searchOpen && (
@@ -142,11 +114,11 @@ export default function Header({
               <input
                 type="search"
                 name="q"
-                placeholder="Search intelligence"
+                placeholder="Search AI developments"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 autoFocus
-                className="h-11 w-full rounded-2xl border border-border bg-card/90 pl-10 pr-4 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/40"
+                className="h-11 w-full rounded-2xl border border-border bg-card/90 pl-10 pr-10 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/40"
               />
               {isPending && (
                 <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />

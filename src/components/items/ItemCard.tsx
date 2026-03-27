@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import {
-  Bookmark,
-  BookmarkCheck,
   ExternalLink,
   ChevronDown,
   ChevronUp,
@@ -51,7 +49,7 @@ const inclusionReasonLabels: Record<string, string> = {
   product_relevant: "Product Relevant",
   open_source_impact: "Open Source Impact",
   safety_alignment: "Safety & Alignment",
-  community_attention: "Trending",
+  community_attention: "Notable",
   efficiency_breakthrough: "Efficiency Gain",
   benchmark_record: "New Benchmark",
   agent_tool_use: "Agents & Tools",
@@ -63,8 +61,6 @@ const inclusionReasonLabels: Record<string, string> = {
 const impactTagColors: Record<string, string> = {
   "High Impact": "bg-red-500/15 text-red-500",
   "Worth Watching": "bg-orange-500/15 text-orange-500",
-  "Early Signal": "bg-yellow-500/15 text-yellow-600",
-  "Experimental": "bg-gray-500/15 text-gray-400",
 };
 
 function getImpactTag(item: Item): { label: string; color: string } | null {
@@ -155,27 +151,12 @@ function WhyPanel({ item }: { item: Item }) {
 // ─── Main Card ───────────────────────────────────────────────────────
 
 export default function ItemCard({ item }: { item: Item }) {
-  const [bookmarked, setBookmarked] = useState(item.isBookmarked ?? false);
   const [showWhy, setShowWhy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(item.implications ?? null);
 
   const tags: string[] = item.tags ? JSON.parse(item.tags) : [];
   const impactTag = getImpactTag(item);
-
-  const handleBookmark = async () => {
-    const next = !bookmarked;
-    setBookmarked(next);
-    try {
-      await fetch(`/api/items`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: item.id, action: "bookmark" }),
-      });
-    } catch {
-      setBookmarked(!next);
-    }
-  };
 
   const handleWhy = async () => {
     if (showWhy) {
@@ -303,18 +284,6 @@ export default function ItemCard({ item }: { item: Item }) {
               <ChevronUp className="h-3 w-3" />
             ) : (
               <ChevronDown className="h-3 w-3" />
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={handleBookmark}
-            className="flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-border/50"
-            title={bookmarked ? "Remove bookmark" : "Bookmark"}
-          >
-            {bookmarked ? (
-              <BookmarkCheck className="h-4 w-4 text-accent" />
-            ) : (
-              <Bookmark className="h-4 w-4 text-muted" />
             )}
           </button>
         </div>

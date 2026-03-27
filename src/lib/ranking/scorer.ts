@@ -55,38 +55,6 @@ const MODE_WEIGHTS: Record<RankMode, Partial<ScoreWeights>> = {
     practical: 0.05,
     recency: 0.20,
   },
-  novel: {
-    importance: 0.10,
-    novelty: 0.45,
-    credibility: 0.05,
-    impact: 0.10,
-    practical: 0.05,
-    recency: 0.25,
-  },
-  impactful: {
-    importance: 0.15,
-    novelty: 0.10,
-    credibility: 0.10,
-    impact: 0.40,
-    practical: 0.05,
-    recency: 0.20,
-  },
-  underrated: {
-    importance: 0.05,
-    novelty: 0.40,
-    credibility: 0.10,
-    impact: 0.20,
-    practical: 0.10,
-    recency: 0.15,
-  },
-  opensource: {
-    importance: 0.15,
-    novelty: 0.20,
-    credibility: 0.10,
-    impact: 0.15,
-    practical: 0.15,
-    recency: 0.25,
-  },
   research: {
     importance: 0.20,
     novelty: 0.30,
@@ -149,9 +117,7 @@ export function rankItems(
   const weights = MODE_WEIGHTS[mode];
 
   let pool = [...items];
-  if (mode === 'opensource') {
-    pool = pool.filter((i) => i.isOpenSource || i.category === 'opensource');
-  } else if (mode === 'research') {
+  if (mode === 'research') {
     pool = pool.filter((i) => i.category === 'research');
   }
 
@@ -174,14 +140,6 @@ export function rankItems(
     // Penalize items marked as duplicates
     if ((item as any).duplicateOf) {
       score *= 0.2;
-    }
-
-    if (mode === 'underrated') {
-      if ((item as any).importanceScore > 80) {
-        score *= 0.6;
-      } else if ((item as any).importanceScore > 60) {
-        score *= 0.8;
-      }
     }
 
     // Boost primary sources

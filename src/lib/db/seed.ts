@@ -1,5 +1,5 @@
 import { db } from "./index";
-import { items, clusters, entities, signals, alerts } from "./schema";
+import { items, clusters, entities } from "./schema";
 import { initDatabase } from "./init";
 import { v4 as uuid } from "uuid";
 import { sql } from "drizzle-orm";
@@ -54,7 +54,7 @@ const entityIds = {
   mistral_large3: uuid(),
 };
 
-// Pre-generate item IDs so signals/alerts can reference them
+// Pre-generate item IDs so clusters and related items can reference them
 const itemIds: string[] = [];
 for (let i = 0; i < 75; i++) {
   itemIds.push(uuid());
@@ -250,131 +250,12 @@ async function seed() {
       isOriginalSource: true,
       isPrimarySource: item.sourceType === "blog",
       isDemo: true,
-      isBookmarked: false,
       isRead: false,
       isArchived: false,
     }).run();
   }
 
-  // ─── Signals ──────────────────────────────────────────────────────
-  const signalData = [
-    {
-      id: uuid(),
-      title: "Reasoning Model Arms Race Accelerating",
-      description: "GPT-5, Claude 4, and Gemini 2.5 all released within weeks of each other with major reasoning improvements, indicating an escalating competition for reasoning capabilities.",
-      signalType: "acceleration",
-      strength: 88,
-      firstDetected: daysAgo(7),
-      lastUpdated: daysAgo(0),
-      relatedItemIds: JSON.stringify([itemIds[0], itemIds[4], itemIds[7]]),
-      relatedEntities: JSON.stringify(["OpenAI", "Anthropic", "Google"]),
-      tags: '["reasoning","competition","frontier-models"]',
-      isActive: true,
-    },
-    {
-      id: uuid(),
-      title: "Open-Weight Models Closing Gap with Proprietary",
-      description: "Llama 4, DeepSeek R2, and Qwen 2.5 Max demonstrate that open-weight models are within striking distance of proprietary alternatives on most benchmarks.",
-      signalType: "convergence",
-      strength: 82,
-      firstDetected: daysAgo(10),
-      lastUpdated: daysAgo(1),
-      relatedItemIds: JSON.stringify([itemIds[10], itemIds[35], itemIds[19]]),
-      relatedEntities: JSON.stringify(["Meta", "DeepSeek", "Alibaba"]),
-      tags: '["open-source","convergence","competition"]',
-      isActive: true,
-    },
-    {
-      id: uuid(),
-      title: "AI Agent Frameworks Going Mainstream",
-      description: "OpenAI, Anthropic, and Microsoft all shipping production agent tools within the same month signals agents moving from research curiosity to production infrastructure.",
-      signalType: "breakout",
-      strength: 78,
-      firstDetected: daysAgo(6),
-      lastUpdated: daysAgo(0),
-      relatedItemIds: JSON.stringify([itemIds[20], itemIds[21], itemIds[32]]),
-      relatedEntities: JSON.stringify(["OpenAI", "Anthropic", "Microsoft"]),
-      tags: '["agents","production","frameworks"]',
-      isActive: true,
-    },
-    {
-      id: uuid(),
-      title: "On-Device AI Becoming Viable",
-      description: "Apple, Samsung, and quantization advances are making capable AI models run on consumer devices, potentially shifting AI from cloud to edge.",
-      signalType: "emerging_topic",
-      strength: 65,
-      firstDetected: daysAgo(8),
-      lastUpdated: daysAgo(5),
-      relatedItemIds: JSON.stringify([itemIds[31], itemIds[40], itemIds[11]]),
-      relatedEntities: JSON.stringify(["Apple", "Samsung", "Meta"]),
-      tags: '["on-device","edge-ai","mobile","hardware"]',
-      isActive: true,
-    },
-    {
-      id: uuid(),
-      title: "AI Safety Regulation Crystallizing Globally",
-      description: "EU AI Act enforcement, US AISI standards, and voluntary commitments are converging into a global regulatory framework for AI.",
-      signalType: "convergence",
-      strength: 72,
-      firstDetected: daysAgo(12),
-      lastUpdated: daysAgo(2),
-      relatedItemIds: JSON.stringify([itemIds[13], itemIds[38], itemIds[64]]),
-      relatedEntities: JSON.stringify(["EU", "US AISI"]),
-      tags: '["regulation","safety","policy","global"]',
-      isActive: true,
-    },
-    {
-      id: uuid(),
-      title: "Custom AI Silicon Challenging NVIDIA Dominance",
-      description: "Groq, Cerebras, and AMD all making credible challenges to NVIDIA's AI chip dominance with different architectural approaches.",
-      signalType: "emerging_topic",
-      strength: 60,
-      firstDetected: daysAgo(11),
-      lastUpdated: daysAgo(2),
-      relatedItemIds: JSON.stringify([itemIds[48], itemIds[55], itemIds[72]]),
-      relatedEntities: JSON.stringify(["Groq", "Cerebras", "AMD", "NVIDIA"]),
-      tags: '["hardware","chips","competition","infrastructure"]',
-      isActive: true,
-    },
-    {
-      id: uuid(),
-      title: "AI Interpretability Research Advancing Rapidly",
-      description: "Anthropic's scaling monosemanticity and DeepMind's causal analysis suggest mechanistic interpretability is becoming practical at frontier model scale.",
-      signalType: "acceleration",
-      strength: 70,
-      firstDetected: daysAgo(5),
-      lastUpdated: daysAgo(2),
-      relatedItemIds: JSON.stringify([itemIds[60], itemIds[44]]),
-      relatedEntities: JSON.stringify(["Anthropic", "Google"]),
-      tags: '["interpretability","safety","research"]',
-      isActive: true,
-    },
-  ];
-
-  for (const s of signalData) {
-    await db.insert(signals).values({ ...s, isDemo: true }).run();
-  }
-
-  // ─── Alerts ───────────────────────────────────────────────────────
-  const alertData = [
-    { id: uuid(), type: "model_release", title: "GPT-5 Released by OpenAI", itemId: itemIds[0], severity: "critical", isRead: false, createdAt: daysAgo(2) },
-    { id: uuid(), type: "model_release", title: "Claude 4 Released by Anthropic", itemId: itemIds[4], severity: "critical", isRead: true, createdAt: daysAgo(5) },
-    { id: uuid(), type: "model_release", title: "Gemini 2.5 Pro Released by Google", itemId: itemIds[7], severity: "high", isRead: true, createdAt: daysAgo(4) },
-    { id: uuid(), type: "model_release", title: "Llama 4 Open Weights Released by Meta", itemId: itemIds[10], severity: "high", isRead: true, createdAt: daysAgo(7) },
-    { id: uuid(), type: "benchmark", title: "Claude 4 Sets New SWE-Bench Record", itemId: itemIds[5], severity: "medium", isRead: false, createdAt: daysAgo(4) },
-    { id: uuid(), type: "paper", title: "Universal Prompt Injection Attack Discovered", itemId: itemIds[30], severity: "high", isRead: false, createdAt: daysAgo(4) },
-    { id: uuid(), type: "product", title: "OpenAI Launches Operator Web Agent", itemId: itemIds[61], severity: "medium", isRead: false, createdAt: daysAgo(1) },
-    { id: uuid(), type: "paper", title: "Self-Improving AI Agent Research Published", itemId: itemIds[56], severity: "high", isRead: false, createdAt: daysAgo(2) },
-    { id: uuid(), type: "funding", title: "xAI Raises $6B at $50B Valuation", itemId: itemIds[25], severity: "medium", isRead: true, createdAt: daysAgo(10) },
-    { id: uuid(), type: "product", title: "Anthropic Ships Claude Code", itemId: itemIds[21], severity: "medium", isRead: false, createdAt: daysAgo(3) },
-    { id: uuid(), type: "benchmark", title: "AlphaProof v2 Achieves IMO Silver", itemId: itemIds[43], severity: "medium", isRead: false, createdAt: daysAgo(4) },
-  ];
-
-  for (const a of alertData) {
-    await db.insert(alerts).values({ ...a, isDemo: true }).run();
-  }
-
-  console.log(`Seeded ${itemData.length} items, ${clusterData.length} clusters, ${entityData.length} entities, ${signalData.length} signals, ${alertData.length} alerts.`);
+  console.log(`Seeded ${itemData.length} items, ${clusterData.length} clusters, ${entityData.length} entities.`);
 }
 
 // Run standalone with tsx

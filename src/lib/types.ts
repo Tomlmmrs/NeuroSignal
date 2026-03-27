@@ -1,4 +1,4 @@
-export type RankMode = 'latest' | 'important' | 'novel' | 'impactful' | 'underrated' | 'opensource' | 'research';
+export type RankMode = 'latest' | 'important' | 'research';
 export type Category = 'model' | 'tool' | 'research' | 'company' | 'opensource' | 'policy' | 'market';
 export type SourceType = 'blog' | 'research' | 'news' | 'social' | 'github' | 'release' | 'api' | 'rss';
 export type AlertSeverity = 'low' | 'medium' | 'high' | 'critical';
@@ -29,10 +29,6 @@ export const DEFAULT_WEIGHTS: ScoreWeights = {
 export const RANK_MODE_LABELS: Record<RankMode, string> = {
   latest: 'Latest',
   important: 'Most Important',
-  novel: 'Most Novel',
-  impactful: 'Most Impactful',
-  underrated: 'Underrated Signals',
-  opensource: 'Open Source Momentum',
   research: 'Research to Watch',
 };
 

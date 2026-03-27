@@ -24,7 +24,7 @@ export default async function AdminPage() {
   }
 
   return (
-    <AppShell unreadCount={stats.unreadAlerts}>
+    <AppShell>
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">

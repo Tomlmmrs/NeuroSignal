@@ -1,4 +1,4 @@
-import { getDashboardStats, getItemById, getItemsByCluster } from "@/lib/db/queries";
+import { getItemById, getItemsByCluster } from "@/lib/db/queries";
 import { notFound } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import ItemCard from "@/components/items/ItemCard";
@@ -38,9 +38,6 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
   const item = await getItemById(id);
   if (!item) notFound();
 
-  const [stats] = await Promise.all([
-    getDashboardStats(),
-  ]);
   const relatedItems = item.clusterId
     ? (await getItemsByCluster(item.clusterId)).filter(i => i.id !== item.id)
     : [];
@@ -48,7 +45,7 @@ export default async function ItemPage({ params }: { params: Promise<{ id: strin
   const tags: string[] = item.tags ? JSON.parse(item.tags) : [];
 
   return (
-    <AppShell unreadCount={stats.unreadAlerts}>
+    <AppShell>
       <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground sm:mb-6">
           <ArrowLeft className="h-4 w-4" />

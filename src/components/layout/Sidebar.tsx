@@ -126,7 +126,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </p>
         <p className="mt-2 text-base font-semibold text-foreground">{activeItem.label}</p>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          Jump between ranking views, categories, and dashboard slices without losing context.
+          Move between the core dashboard views and categories without leaving the main feed.
         </p>
       </div>
 

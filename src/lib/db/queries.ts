@@ -1,9 +1,9 @@
 import { db, schema } from "./index";
-import { eq, desc, like, or, and, sql, gt, isNull, isNotNull } from "drizzle-orm";
+import { eq, desc, like, or, and, sql, isNull } from "drizzle-orm";
 import type { RankMode, Category, TimeWindow } from "../types";
 import { TIME_WINDOW_HOURS } from "../types";
 
-const { items, clusters, signals, entities, alerts, bookmarks, userPreferences, sources: sourcesTable, sourceFetchLog } = schema;
+const { items, userPreferences, sources: sourcesTable, sourceFetchLog } = schema;
 
 // ─── Items ──────────────────────────────────────────────────────────
 
@@ -16,7 +16,6 @@ export interface ItemQueryOptions {
   minImportance?: number;
   limit?: number;
   offset?: number;
-  bookmarkedOnly?: boolean;
   includeDemo?: boolean;
   timeWindow?: TimeWindow;
   paperDepth?: "general" | "intermediate" | "advanced";
@@ -77,7 +76,7 @@ export async function getItems(opts: ItemQueryOptions = {}) {
 
   // Time window — default to 3 days for "latest", 7 days for other modes
   const defaultWindow: TimeWindow = opts.mode === "latest" ? "3d"
-    : (opts.mode === "important" || opts.mode === "novel") ? "7d"
+    : opts.mode === "important" ? "7d"
     : "all";
   const tw = opts.timeWindow ?? defaultWindow;
   const twCond = timeWindowCondition(tw);
@@ -95,9 +94,6 @@ export async function getItems(opts: ItemQueryOptions = {}) {
   if (opts.minImportance) {
     conditions.push(sql`${items.importanceScore} >= ${opts.minImportance}`);
   }
-  if (opts.bookmarkedOnly) {
-    conditions.push(eq(items.isBookmarked, true));
-  }
   if (opts.search) {
     const term = `%${opts.search}%`;
     conditions.push(
@@ -111,11 +107,6 @@ export async function getItems(opts: ItemQueryOptions = {}) {
     );
   }
 
-  if (opts.mode === "opensource") {
-    conditions.push(
-      or(eq(items.isOpenSource, true), eq(items.category, "opensource"))
-    );
-  }
   if (opts.mode === "research") {
     conditions.push(eq(items.category, "research"));
     // In research mode, only show items that passed research feed filter
@@ -130,7 +121,7 @@ export async function getItems(opts: ItemQueryOptions = {}) {
 
   // In non-research modes, filter out low-value papers from the main feed
   // Also treat arXiv items in non-research categories as research for filtering
-  if (opts.mode !== "research" && opts.mode !== "opensource") {
+  if (opts.mode !== "research") {
     conditions.push(
       or(
         // Non-research, non-arXiv items always pass
@@ -163,16 +154,6 @@ export async function getItems(opts: ItemQueryOptions = {}) {
     case "important":
       orderBy = [desc(freshnessBoostedScore)];
       break;
-    case "novel":
-      orderBy = [desc(sql`(${items.noveltyScore} * ${freshnessBoostedScore} / COALESCE(${items.compositeScore}, 50))`), desc(items.publishedAt)];
-      break;
-    case "impactful":
-      orderBy = [desc(sql`(${items.impactScore} * ${freshnessBoostedScore} / COALESCE(${items.compositeScore}, 50))`), desc(freshnessBoostedScore)];
-      break;
-    case "underrated":
-      orderBy = [desc(sql`(${items.noveltyScore} * 0.6 + (100 - COALESCE(${items.importanceScore}, 50)) * 0.4) * CASE WHEN julianday('now') - julianday(COALESCE(${items.publishedAt}, ${items.discoveredAt})) < 7 THEN 1.0 ELSE 0.3 END`), desc(items.publishedAt)];
-      break;
-    case "opensource":
     case "research":
       orderBy = [desc(freshnessBoostedScore), desc(items.publishedAt)];
       break;
@@ -184,7 +165,7 @@ export async function getItems(opts: ItemQueryOptions = {}) {
 
   // In non-research modes, cap research items at ~20% of results.
   // Fetch extra to ensure we have enough non-research items after capping.
-  const needsCap = opts.mode !== "research" && opts.mode !== "opensource";
+  const needsCap = opts.mode !== "research";
   const fetchLimit = needsCap ? requestedLimit * 2 : requestedLimit;
 
   const rows = await db
@@ -229,114 +210,7 @@ export async function getItemsByCluster(clusterId: string) {
     .all();
 }
 
-export async function toggleBookmark(itemId: string) {
-  const item = await getItemById(itemId);
-  if (!item) return null;
-  await db.update(items)
-    .set({ isBookmarked: !item.isBookmarked })
-    .where(eq(items.id, itemId))
-    .run();
-  return { ...item, isBookmarked: !item.isBookmarked };
-}
-
-export async function markAsRead(itemId: string) {
-  await db.update(items)
-    .set({ isRead: true })
-    .where(eq(items.id, itemId))
-    .run();
-}
-
 // ─── Clusters ───────────────────────────────────────────────────────
-
-export async function getClusters(limit = 20) {
-  return await db
-    .select()
-    .from(clusters)
-    .orderBy(desc(clusters.lastUpdated))
-    .limit(limit)
-    .all();
-}
-
-export async function getClusterById(id: string) {
-  return await db.select().from(clusters).where(eq(clusters.id, id)).get();
-}
-
-export async function getTrendingClusters(limit = 10, includeDemo = false) {
-  const conditions = includeDemo ? undefined : eq(clusters.isDemo, false);
-  return await db
-    .select()
-    .from(clusters)
-    .where(conditions)
-    .orderBy(desc(clusters.trendVelocity))
-    .limit(limit)
-    .all();
-}
-
-// ─── Signals ────────────────────────────────────────────────────────
-
-export async function getActiveSignals(limit = 10, includeDemo = false) {
-  const conditions = includeDemo
-    ? eq(signals.isActive, true)
-    : and(eq(signals.isActive, true), eq(signals.isDemo, false));
-  return await db
-    .select()
-    .from(signals)
-    .where(conditions)
-    .orderBy(desc(signals.strength))
-    .limit(limit)
-    .all();
-}
-
-// ─── Entities ───────────────────────────────────────────────────────
-
-export async function getTopEntities(type?: string, limit = 20) {
-  const conditions = type ? eq(entities.type, type) : undefined;
-  return await db
-    .select()
-    .from(entities)
-    .where(conditions)
-    .orderBy(desc(entities.mentionCount))
-    .limit(limit)
-    .all();
-}
-
-export async function getEntityById(id: string) {
-  return await db.select().from(entities).where(eq(entities.id, id)).get();
-}
-
-// ─── Alerts ─────────────────────────────────────────────────────────
-
-export async function getAlerts(unreadOnly = false, limit = 20, includeDemo = false) {
-  const conditions = [];
-  if (!includeDemo) conditions.push(eq(alerts.isDemo, false));
-  if (unreadOnly) conditions.push(eq(alerts.isRead, false));
-  const where = conditions.length > 0 ? and(...conditions) : undefined;
-  return await db
-    .select()
-    .from(alerts)
-    .where(where)
-    .orderBy(desc(alerts.createdAt))
-    .limit(limit)
-    .all();
-}
-
-export async function getUnreadAlertCount(includeDemo = false) {
-  const conditions = [eq(alerts.isRead, false)];
-  if (!includeDemo) conditions.push(eq(alerts.isDemo, false));
-  const result = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(alerts)
-    .where(and(...conditions))
-    .get();
-  return result?.count ?? 0;
-}
-
-export async function markAlertRead(alertId: string) {
-  await db.update(alerts)
-    .set({ isRead: true })
-    .where(eq(alerts.id, alertId))
-    .run();
-}
 
 // ─── Stats ──────────────────────────────────────────────────────────
 
@@ -367,27 +241,6 @@ export async function getDashboardStats(includeDemo = false) {
     )
     .get())?.count ?? 0;
 
-  const activeSignalCount = (await db
-    .select({ count: sql<number>`count(*)` })
-    .from(signals)
-    .where(includeDemo
-      ? eq(signals.isActive, true)
-      : and(eq(signals.isActive, true), eq(signals.isDemo, false))
-    )
-    .get())?.count ?? 0;
-
-  const unreadAlerts = await getUnreadAlertCount(includeDemo);
-
-  const categoryCounts = await db
-    .select({
-      category: items.category,
-      count: sql<number>`count(*)`,
-    })
-    .from(items)
-    .where(demoFilter)
-    .groupBy(items.category)
-    .all();
-
   const demoItemCount = (await db
     .select({ count: sql<number>`count(*)` })
     .from(items)
@@ -398,9 +251,6 @@ export async function getDashboardStats(includeDemo = false) {
     totalItems,
     todayItems,
     last3dItems,
-    activeSignalCount,
-    unreadAlerts,
-    categoryCounts,
     demoItemCount,
   };
 }
@@ -512,22 +362,6 @@ export async function searchItems(query: string, filters?: { category?: string; 
   });
 }
 
-// ─── Companies ──────────────────────────────────────────────────────
-
-export async function getCompanies() {
-  return await db
-    .select({
-      company: items.company,
-      count: sql<number>`count(*)`,
-    })
-    .from(items)
-    .where(sql`${items.company} IS NOT NULL`)
-    .groupBy(items.company)
-    .orderBy(sql`count(*) DESC`)
-    .limit(30)
-    .all();
-}
-
 // ─── Feed Sections (for homepage) ────────────────────────────────────
 
 export async function getFeedSections(timeWindow: TimeWindow = "3d") {
@@ -537,24 +371,23 @@ export async function getFeedSections(timeWindow: TimeWindow = "3d") {
     isNull(items.duplicateOf),
   ];
   if (twCond) baseConditions.push(twCond);
+  const usedIds = new Set<string>();
 
-  // Helper: run a section query
   const sectionQuery = async (extraConditions: any[], limit: number, orderBy: any[]) => {
-    return await db
+    const rows = await db
       .select()
       .from(items)
       .where(and(...baseConditions, ...extraConditions))
       .orderBy(...orderBy)
-      .limit(limit)
+      .limit(limit * 3)
       .all();
+
+    const uniqueRows = rows.filter((row) => !usedIds.has(row.id)).slice(0, limit);
+    uniqueRows.forEach((row) => usedIds.add(row.id));
+    return uniqueRows;
   };
 
   const byFreshness = [desc(freshnessBoostedScore)];
-  const byRecency = [
-    desc(sql`CASE WHEN ${items.publishedAt} IS NOT NULL THEN 1 ELSE 0 END`),
-    desc(sql`COALESCE(${items.publishedAt}, ${items.discoveredAt})`),
-  ];
-
   // Major AI Releases: model releases + major announcements from official sources
   const releases = await sectionQuery(
     [
@@ -573,15 +406,6 @@ export async function getFeedSections(timeWindow: TimeWindow = "3d") {
       sql`${items.source} NOT LIKE 'arxiv%'`,
     ],
     6,
-    byFreshness,
-  );
-
-  // Open Source Momentum
-  const opensource = await sectionQuery(
-    [
-      or(eq(items.category, "opensource"), eq(items.isOpenSource, true)),
-    ],
-    5,
     byFreshness,
   );
 
@@ -607,17 +431,7 @@ export async function getFeedSections(timeWindow: TimeWindow = "3d") {
     byFreshness,
   );
 
-  // Early Signals (novel, recent, lower importance)
-  const signals = await sectionQuery(
-    [
-      sql`COALESCE(${items.noveltyScore}, 50) >= 60`,
-      sql`${items.source} NOT LIKE 'arxiv%'`,
-    ],
-    4,
-    [desc(items.noveltyScore), desc(sql`COALESCE(${items.publishedAt}, ${items.discoveredAt})`)],
-  );
-
-  return { releases, tools, opensource, developments, research, signals };
+  return { releases, tools, developments, research };
 }
 
 // ─── Ingestion Stats (for admin) ────────────────────────────────────

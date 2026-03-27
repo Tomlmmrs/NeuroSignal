@@ -7,10 +7,8 @@ import Sidebar from "./Sidebar";
 
 export default function AppShell({
   children,
-  unreadCount = 0,
 }: {
   children: React.ReactNode;
-  unreadCount?: number;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -35,7 +33,6 @@ export default function AppShell({
   return (
     <div className="min-h-screen bg-background">
       <Header
-        unreadCount={unreadCount}
         mobileNavOpen={navOpen}
         onToggleMobileNav={() => setNavOpen((current) => !current)}
       />
