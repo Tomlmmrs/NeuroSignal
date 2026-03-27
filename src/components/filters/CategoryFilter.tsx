@@ -29,18 +29,19 @@ export default function CategoryFilter() {
   };
 
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+    <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-none">
       {categories.map((cat) => {
         const isActive =
           (cat.key === "all" && activeCategory === "all") || activeCategory === cat.key;
         return (
           <button
             key={cat.key}
+            type="button"
             onClick={() => handleSelect(cat.key)}
-            className={`px-2.5 py-1 text-[11px] font-medium rounded-full whitespace-nowrap transition-all ${
+            className={`rounded-full px-3 py-2 text-xs font-medium whitespace-nowrap transition-all ${
               isActive
                 ? `${cat.color} ring-1 ring-current/20`
-                : "bg-card text-muted-foreground hover:text-foreground border border-border-subtle"
+                : "border border-border-subtle bg-background/60 text-muted-foreground hover:text-foreground"
             }`}
           >
             {cat.label}

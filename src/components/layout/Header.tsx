@@ -1,73 +1,151 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { type FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Activity, Search, Bell, Settings } from "lucide-react";
+import { Activity, Bell, Menu, Search, Settings, X } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { getActiveNavigationState } from "./navigation";
 
-export default function Header({ unreadCount = 0 }: { unreadCount?: number }) {
+interface HeaderProps {
+  unreadCount?: number;
+  mobileNavOpen?: boolean;
+  onToggleMobileNav?: () => void;
+}
+
+export default function Header({
+  unreadCount = 0,
+  mobileNavOpen = false,
+  onToggleMobileNav,
+}: HeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchKey = searchParams.toString();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const { activeItem } = getActiveNavigationState(searchParams);
 
-  const handleSearch = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        const params = new URLSearchParams(searchParams.toString());
-        if (query.trim()) {
-          params.set("q", query.trim());
-        } else {
-          params.delete("q");
-        }
-        router.push(`/?${params.toString()}`);
-      }
-    },
-    [query, searchParams, router]
-  );
+  useEffect(() => {
+    setQuery(searchParams.get("q") ?? "");
+  }, [searchKey, searchParams]);
+
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    const nextQuery = query.trim();
+
+    if (nextQuery) {
+      params.set("q", nextQuery);
+    } else {
+      params.delete("q");
+    }
+
+    router.push(`/?${params.toString()}`);
+    setSearchOpen(false);
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-4 bg-background/80 backdrop-blur-md border-b border-border">
-      {/* Left: Logo */}
-      <div className="flex items-center gap-2.5 min-w-[200px]">
-        <Activity className="h-5 w-5 text-accent" />
-        <div className="flex items-baseline gap-2">
-          <span className="text-sm font-bold tracking-wider text-foreground">
-            AI INTELLIGENCE
-          </span>
-          <span className="text-xs text-muted hidden sm:inline">
-            Signal over noise
-          </span>
+    <header className="sticky top-0 z-40 border-b border-border bg-background/92 backdrop-blur-xl">
+      <div className="flex h-16 items-center justify-between gap-3 px-3 sm:px-4 lg:px-5">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={onToggleMobileNav}
+            className="rounded-xl p-2 text-foreground transition-colors hover:bg-card-hover lg:hidden"
+            aria-label={mobileNavOpen ? "Close navigation" : "Open navigation"}
+          >
+            {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+
+          <Link href="/" className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-subtle bg-card shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+              <Activity className="h-4 w-4 text-accent" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold tracking-[0.2em] text-foreground">
+                AI INTELLIGENCE
+              </p>
+              <p className="truncate text-[11px] text-muted-foreground md:hidden">
+                {activeItem.label}
+              </p>
+              <p className="hidden text-[11px] text-muted-foreground md:block">
+                Signal over noise
+              </p>
+            </div>
+          </Link>
+        </div>
+
+        <form
+          onSubmit={submitSearch}
+          className="hidden min-w-0 flex-1 justify-center sm:flex"
+        >
+          <div className="relative w-full max-w-xl">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              name="q"
+              placeholder="Search intelligence, companies, tools, and research"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="h-11 w-full rounded-2xl border border-border bg-card/90 pl-10 pr-4 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/40"
+            />
+          </div>
+        </form>
+
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <button
+            type="button"
+            onClick={() => setSearchOpen((current) => !current)}
+            className={cn(
+              "rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground sm:hidden",
+              searchOpen && "bg-card text-foreground"
+            )}
+            aria-label={searchOpen ? "Close search" : "Open search"}
+          >
+            <Search className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            className="relative rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground"
+            aria-label="Notifications"
+          >
+            <Bell className="h-4 w-4" />
+            {unreadCount > 0 && (
+              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            className="hidden rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground sm:block"
+            aria-label="Settings"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
-      {/* Center: Search */}
-      <div className="flex-1 max-w-md mx-4">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
-          <input
-            type="text"
-            placeholder="Search intelligence..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleSearch}
-            className="w-full h-8 pl-8 pr-3 text-sm bg-card border border-border rounded-md text-foreground placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-colors"
-          />
+      {searchOpen && (
+        <div className="border-t border-border px-3 pb-3 sm:hidden">
+          <form onSubmit={submitSearch} className="pt-3">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+              <input
+                type="search"
+                name="q"
+                placeholder="Search intelligence"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                autoFocus
+                className="h-11 w-full rounded-2xl border border-border bg-card/90 pl-10 pr-4 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent/40"
+              />
+            </div>
+          </form>
         </div>
-      </div>
-
-      {/* Right: Actions */}
-      <div className="flex items-center gap-1 min-w-[100px] justify-end">
-        <button className="relative p-2 rounded-md hover:bg-card-hover transition-colors">
-          <Bell className="h-4 w-4 text-muted-foreground" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 h-4 min-w-[16px] px-1 flex items-center justify-center text-[10px] font-bold bg-danger text-white rounded-full">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </button>
-        <button className="p-2 rounded-md hover:bg-card-hover transition-colors">
-          <Settings className="h-4 w-4 text-muted-foreground" />
-        </button>
-      </div>
+      )}
     </header>
   );
 }

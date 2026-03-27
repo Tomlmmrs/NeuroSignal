@@ -21,13 +21,15 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="flex items-center gap-2.5 px-3.5 py-2 bg-card border border-border-subtle rounded-lg">
-      <Icon className={`h-4 w-4 ${color}`} />
-      <div>
-        <p className="text-lg font-semibold leading-none text-foreground">
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-border-subtle bg-card/80 px-3.5 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-subtle bg-background/80">
+        <Icon className={`h-4 w-4 ${color}`} />
+      </div>
+      <div className="min-w-0">
+        <p className="truncate text-lg font-semibold leading-none text-foreground">
           {value.toLocaleString()}
         </p>
-        <p className="text-[10px] text-muted mt-0.5">{label}</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">{label}</p>
       </div>
     </div>
   );
@@ -35,7 +37,7 @@ function StatCard({
 
 export default function StatsBar({ stats }: { stats: Stats }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5">
       <StatCard
         label="Total tracked"
         value={stats.totalItems}

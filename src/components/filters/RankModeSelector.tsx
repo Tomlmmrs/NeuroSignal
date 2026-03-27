@@ -25,17 +25,18 @@ export default function RankModeSelector() {
   };
 
   return (
-    <div className="flex items-center gap-0.5 overflow-x-auto pb-0.5 scrollbar-none">
+    <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
       {modes.map((mode) => {
         const isActive = activeMode === mode.key;
         return (
           <button
             key={mode.key}
+            type="button"
             onClick={() => handleSelect(mode.key)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${
+            className={`rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
               isActive
-                ? "bg-accent/15 text-accent"
-                : "text-muted-foreground hover:text-foreground hover:bg-card-hover"
+                ? "bg-accent/15 text-accent shadow-[inset_0_0_0_1px_rgba(59,130,246,0.22)]"
+                : "bg-background/60 text-muted-foreground hover:bg-card-hover hover:text-foreground"
             }`}
           >
             {mode.label}

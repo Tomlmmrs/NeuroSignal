@@ -15,45 +15,44 @@ export default function SignalsPanel({ signals }: { signals: Signal[] }) {
   if (signals.length === 0) return null;
 
   return (
-    <div className="bg-card border border-border-subtle rounded-lg">
-      <div className="flex items-center gap-2 px-3.5 py-2.5 border-b border-border-subtle">
+    <div className="overflow-hidden rounded-2xl border border-border-subtle bg-card/75">
+      <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
         <Radar className="h-4 w-4 text-accent" />
-        <h2 className="text-xs font-semibold text-foreground">Early Signals</h2>
-        <span className="ml-auto text-[10px] text-muted">{signals.length}</span>
+        <h2 className="text-sm font-semibold text-foreground">Early Signals</h2>
+        <span className="ml-auto text-[11px] text-muted">{signals.length}</span>
       </div>
 
       <div className="divide-y divide-border-subtle">
         {signals.map((signal) => {
           const cfg = signalTypeConfig[signal.signalType] ?? signalTypeConfig.emerging_topic;
           return (
-            <div key={signal.id} className="px-3.5 py-2.5 hover:bg-card-hover transition-colors">
-              <div className="flex items-center justify-between mb-1">
-                <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full ${cfg.color}`}>
+            <div key={signal.id} className="px-4 py-3 transition-colors hover:bg-card-hover">
+              <div className="mb-1.5 flex items-center justify-between gap-2">
+                <span className={`rounded-full px-2 py-1 text-[10px] font-medium ${cfg.color}`}>
                   {cfg.label}
                 </span>
-                <span className="text-[10px] text-muted">
+                <span className="text-[11px] text-muted">
                   {formatDistanceToNow(new Date(signal.firstDetected), { addSuffix: true })}
                 </span>
               </div>
 
-              <h3 className="text-xs font-medium text-foreground mb-1">{signal.title}</h3>
+              <h3 className="text-sm font-medium text-foreground">{signal.title}</h3>
 
               {signal.description && (
-                <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2 mb-1.5">
+                <p className="mb-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
                   {signal.description}
                 </p>
               )}
 
-              {/* Strength meter */}
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-muted">Strength</span>
+                <span className="text-[11px] text-muted">Strength</span>
                 <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full score-bar ${cfg.barColor}`}
                     style={{ width: `${signal.strength ?? 0}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-muted-foreground w-5 text-right">
+                <span className="w-6 text-right text-[11px] text-muted-foreground">
                   {Math.round(signal.strength ?? 0)}
                 </span>
               </div>

@@ -1,3 +1,4 @@
+import AppShell from "@/components/layout/AppShell";
 import { getSourceHealth, getItemsForAdmin, getDashboardStats, getIngestionStats } from "@/lib/db/queries";
 import { formatRelativeTime } from "@/lib/utils/format";
 
@@ -23,36 +24,39 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
-      <h1 className="text-2xl font-bold text-foreground">Admin: Source Health & Debug</h1>
-
-      {/* Stats overview */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <StatCard label="Total Items" value={stats.totalItems} />
-        <StatCard label="Live Items" value={stats.totalItems - (stats.demoItemCount ?? 0)} />
-        <StatCard label="Demo Items" value={stats.demoItemCount ?? 0} />
-        <StatCard label="Last 24h" value={stats.todayItems} />
-        <StatCard label="Last 3 Days" value={stats.last3dItems ?? 0} />
-      </div>
-
-      {/* Date confidence breakdown */}
-      <section>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Date Confidence Breakdown</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {ingestionStats.dateConfidenceBreakdown.map((dc) => (
-            <div key={dc.confidence ?? "null"} className="bg-card border border-border rounded-lg p-3">
-              <p className="text-xs text-muted-foreground capitalize">{dc.confidence ?? "null"}</p>
-              <p className="text-xl font-bold text-foreground">{dc.count}</p>
-            </div>
-          ))}
+    <AppShell unreadCount={stats.unreadAlerts}>
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
+            Admin
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-foreground">Source Health & Debug</h1>
         </div>
-      </section>
 
-      {/* Source health table */}
-      <section>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Source Health</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <StatCard label="Total Items" value={stats.totalItems} />
+          <StatCard label="Live Items" value={stats.totalItems - (stats.demoItemCount ?? 0)} />
+          <StatCard label="Demo Items" value={stats.demoItemCount ?? 0} />
+          <StatCard label="Last 24h" value={stats.todayItems} />
+          <StatCard label="Last 3 Days" value={stats.last3dItems ?? 0} />
+        </div>
+
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Date Confidence Breakdown</h2>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {ingestionStats.dateConfidenceBreakdown.map((dc) => (
+              <div key={dc.confidence ?? "null"} className="rounded-2xl border border-border bg-card p-3">
+                <p className="text-xs capitalize text-muted-foreground">{dc.confidence ?? "null"}</p>
+                <p className="text-xl font-bold text-foreground">{dc.count}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Source Health</h2>
+          <div className="overflow-x-auto rounded-2xl border border-border">
+            <table className="min-w-[920px] w-full text-sm">
             <thead className="bg-card text-muted-foreground">
               <tr>
                 <th className="text-left p-2">Source</th>
@@ -131,14 +135,13 @@ export default async function AdminPage() {
                 })}
             </tbody>
           </table>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* Per-source ingestion stats */}
-      <section>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Per-Source Ingestion Quality</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-border rounded-lg">
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Per-Source Ingestion Quality</h2>
+          <div className="overflow-x-auto rounded-2xl border border-border">
+            <table className="min-w-[760px] w-full text-sm">
             <thead className="bg-card text-muted-foreground">
               <tr>
                 <th className="text-left p-2">Source</th>
@@ -173,14 +176,13 @@ export default async function AdminPage() {
               ))}
             </tbody>
           </table>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* Recent items with full debug info */}
-      <section>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Recent Items (Debug View)</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-[11px] border border-border rounded-lg">
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Recent Items (Debug View)</h2>
+          <div className="overflow-x-auto rounded-2xl border border-border">
+            <table className="min-w-[960px] w-full text-[11px]">
             <thead className="bg-card text-muted-foreground">
               <tr>
                 <th className="text-left p-2">Title</th>
@@ -236,42 +238,42 @@ export default async function AdminPage() {
               })}
             </tbody>
           </table>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      {/* Source fetch log */}
-      <section>
-        <h2 className="text-lg font-semibold text-foreground mb-3">Recent Fetch Logs</h2>
-        <div className="space-y-4">
-          {sources.filter(s => s.recentLogs.length > 0).map((s) => (
-            <div key={s.id} className="bg-card border border-border rounded-lg p-3">
-              <h3 className="text-sm font-medium text-foreground mb-2">{s.name}</h3>
-              <div className="space-y-1">
-                {s.recentLogs.map((log: any) => (
-                  <div key={log.id} className="flex items-center gap-3 text-[11px]">
-                    <span className={`w-12 font-medium ${log.status === "ok" ? "text-emerald-400" : log.status === "error" ? "text-red-400" : "text-yellow-400"}`}>
-                      {log.status.toUpperCase()}
-                    </span>
-                    <span className="text-muted-foreground w-24">{formatRelativeTime(log.fetchedAt)}</span>
-                    <span className="text-foreground">{log.itemsNew} new / {log.itemsFetched} fetched</span>
-                    <span className="text-muted-foreground">{log.durationMs}ms</span>
-                    {log.errorMessage && (
-                      <span className="text-red-400/80 truncate max-w-[300px]">{log.errorMessage}</span>
-                    )}
-                  </div>
-                ))}
+        <section>
+          <h2 className="mb-3 text-lg font-semibold text-foreground">Recent Fetch Logs</h2>
+          <div className="space-y-4">
+            {sources.filter(s => s.recentLogs.length > 0).map((s) => (
+              <div key={s.id} className="rounded-2xl border border-border bg-card p-4">
+                <h3 className="mb-3 text-sm font-medium text-foreground">{s.name}</h3>
+                <div className="space-y-2">
+                  {s.recentLogs.map((log: any) => (
+                    <div key={log.id} className="flex flex-col gap-1.5 rounded-xl border border-border-subtle bg-background/70 p-3 text-[11px] sm:flex-row sm:items-center sm:gap-3">
+                      <span className={`w-12 font-medium ${log.status === "ok" ? "text-emerald-400" : log.status === "error" ? "text-red-400" : "text-yellow-400"}`}>
+                        {log.status.toUpperCase()}
+                      </span>
+                      <span className="w-24 text-muted-foreground">{formatRelativeTime(log.fetchedAt)}</span>
+                      <span className="text-foreground">{log.itemsNew} new / {log.itemsFetched} fetched</span>
+                      <span className="text-muted-foreground">{log.durationMs}ms</span>
+                      {log.errorMessage && (
+                        <span className="max-w-[300px] truncate text-red-400/80">{log.errorMessage}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </AppShell>
   );
 }
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-card border border-border rounded-lg p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-2xl font-bold text-foreground">{value}</p>
     </div>

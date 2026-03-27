@@ -9,9 +9,16 @@ interface ItemListProps {
   loading?: boolean;
   hasMore?: boolean;
   onLoadMore?: () => void;
+  showCount?: boolean;
 }
 
-export default function ItemList({ items, loading, hasMore, onLoadMore }: ItemListProps) {
+export default function ItemList({
+  items,
+  loading,
+  hasMore,
+  onLoadMore,
+  showCount = true,
+}: ItemListProps) {
   if (loading && items.length === 0) {
     return (
       <div className="flex items-center justify-center py-16 text-muted">
@@ -33,11 +40,13 @@ export default function ItemList({ items, loading, hasMore, onLoadMore }: ItemLi
 
   return (
     <div>
-      <p className="text-xs text-muted mb-3">
-        {items.length} item{items.length !== 1 && "s"}
-      </p>
+      {showCount && (
+        <p className="mb-3 text-xs text-muted">
+          {items.length} item{items.length !== 1 && "s"}
+        </p>
+      )}
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5 sm:gap-3">
         {items.map((item) => (
           <ItemCard key={item.id} item={item} />
         ))}

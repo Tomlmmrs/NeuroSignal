@@ -26,24 +26,29 @@ export default function TimeWindowFilter() {
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <span className="text-[10px] text-muted-foreground mr-1">Time:</span>
+    <div className="space-y-2">
+      <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
+        Time Window
+      </span>
+      <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
       {windows.map((w) => {
         const isActive = activeWindow === w.key || (!searchParams.has("t") && w.key === "3d");
         return (
           <button
             key={w.key}
+            type="button"
             onClick={() => handleSelect(w.key)}
-            className={`px-2 py-0.5 text-[10px] font-medium rounded whitespace-nowrap transition-colors ${
+            className={`rounded-full px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
               isActive
-                ? "bg-accent/15 text-accent"
-                : "text-muted-foreground hover:text-foreground hover:bg-card-hover"
+                ? "bg-accent/15 text-accent shadow-[inset_0_0_0_1px_rgba(59,130,246,0.22)]"
+                : "bg-background/60 text-muted-foreground hover:bg-card-hover hover:text-foreground"
             }`}
           >
             {w.label}
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

@@ -1,64 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Zap,
-  Trophy,
-  Sparkles,
-  TrendingUp,
-  Eye,
-  GitBranch,
-  BookOpen,
-  Brain,
-  Wrench,
-  FlaskConical,
-  Building2,
-  Code2,
-  Scale,
-  BarChart3,
-  Radar,
-  Flame,
-  Bookmark,
-  Search,
-  Menu,
-  X,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-
-interface NavItem {
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  param: string; // which URL param this sets
-}
-
-const views: NavItem[] = [
-  { key: "latest", label: "Latest", icon: Zap, param: "view" },
-  { key: "important", label: "Most Important", icon: Trophy, param: "view" },
-  { key: "novel", label: "Most Novel", icon: Sparkles, param: "view" },
-  { key: "impactful", label: "Most Impactful", icon: TrendingUp, param: "view" },
-  { key: "underrated", label: "Underrated Signals", icon: Eye, param: "view" },
-  { key: "opensource", label: "Open Source Momentum", icon: GitBranch, param: "view" },
-  { key: "research", label: "Research to Watch", icon: BookOpen, param: "view" },
-];
-
-const categories: NavItem[] = [
-  { key: "model", label: "AI Models", icon: Brain, param: "category" },
-  { key: "tool", label: "AI Tools", icon: Wrench, param: "category" },
-  { key: "research", label: "Research", icon: FlaskConical, param: "category" },
-  { key: "company", label: "Companies & Labs", icon: Building2, param: "category" },
-  { key: "opensource", label: "Open Source", icon: Code2, param: "category" },
-  { key: "policy", label: "Policy & Regulation", icon: Scale, param: "category" },
-  { key: "market", label: "Market & Industry", icon: BarChart3, param: "category" },
-];
-
-const features: NavItem[] = [
-  { key: "signals", label: "Early Signals", icon: Radar, param: "feature" },
-  { key: "trending", label: "Trending", icon: Flame, param: "feature" },
-  { key: "bookmarks", label: "Bookmarks", icon: Bookmark, param: "feature" },
-  { key: "search", label: "Search", icon: Search, param: "feature" },
-];
+import { Activity, ArrowRight, X } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { getActiveNavigationState, navSections, type NavItem } from "./navigation";
 
 function NavSection({
   title,
@@ -74,107 +21,144 @@ function NavSection({
   onSelect: (item: NavItem) => void;
 }) {
   return (
-    <div className="mb-4">
-      <h3 className="px-3 mb-1 text-[10px] font-semibold tracking-widest text-muted uppercase">
+    <section className="space-y-2">
+      <h3 className="px-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
         {title}
       </h3>
-      <nav className="flex flex-col gap-0.5">
+      <nav className="flex flex-col gap-1">
         {items.map((item) => {
           const isActive = activeParam === item.param && activeKey === item.key;
           const Icon = item.icon;
+
           return (
             <button
               key={item.key}
+              type="button"
               onClick={() => onSelect(item)}
-              className={`flex items-center gap-2.5 px-3 py-1.5 text-xs rounded-md transition-colors text-left ${
+              className={cn(
+                "flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-colors lg:gap-2.5 lg:px-3 lg:py-2",
                 isActive
-                  ? "bg-accent/15 text-accent"
+                  ? "bg-accent/15 text-accent shadow-[inset_0_0_0_1px_rgba(59,130,246,0.22)]"
                   : "text-muted-foreground hover:bg-card-hover hover:text-foreground"
-              }`}
+              )}
             >
-              <Icon className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{item.label}</span>
+              <Icon className="h-4 w-4 shrink-0 lg:h-3.5 lg:w-3.5" />
+              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              {isActive && <ArrowRight className="h-3.5 w-3.5 shrink-0 text-accent/80" />}
             </button>
           );
         })}
       </nav>
-    </div>
+    </section>
   );
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ open, onClose }: SidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { activeItem, activeKey, activeParam } = getActiveNavigationState(searchParams);
 
-  const activeParam =
-    (searchParams.has("feature") && "feature") ||
-    (searchParams.has("category") && "category") ||
-    "view";
-  const activeKey = searchParams.get(activeParam) ?? "latest";
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
 
   const handleSelect = (item: NavItem) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("feature");
+    params.delete("category");
+    params.delete("view");
     params.set(item.param, item.key);
     router.push(`/?${params.toString()}`);
-    setMobileOpen(false);
+    onClose();
   };
 
-  const content = (
-    <>
-      <NavSection
-        title="Views"
-        items={views}
-        activeKey={activeKey}
-        activeParam={activeParam}
-        onSelect={handleSelect}
-      />
-      <NavSection
-        title="Categories"
-        items={categories}
-        activeKey={activeKey}
-        activeParam={activeParam}
-        onSelect={handleSelect}
-      />
-      <NavSection
-        title="Features"
-        items={features}
-        activeKey={activeKey}
-        activeParam={activeParam}
-        onSelect={handleSelect}
-      />
-    </>
+  const navContent = (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border-subtle bg-card/80 p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
+          Active Lens
+        </p>
+        <p className="mt-2 text-base font-semibold text-foreground">{activeItem.label}</p>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          Jump between ranking views, categories, and dashboard slices without losing context.
+        </p>
+      </div>
+
+      {navSections.map((section) => (
+        <NavSection
+          key={section.title}
+          title={section.title}
+          items={section.items}
+          activeKey={activeKey}
+          activeParam={activeParam}
+          onSelect={handleSelect}
+        />
+      ))}
+    </div>
   );
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="fixed top-3.5 left-14 z-50 p-1 rounded-md bg-card border border-border lg:hidden"
-      >
-        {mobileOpen ? (
-          <X className="h-4 w-4 text-muted-foreground" />
-        ) : (
-          <Menu className="h-4 w-4 text-muted-foreground" />
-        )}
-      </button>
-
-      {/* Overlay */}
-      {mobileOpen && (
+      {open && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
       <aside
-        className={`fixed top-14 left-0 z-40 h-[calc(100vh-3.5rem)] w-52 bg-background border-r border-border overflow-y-auto py-3 transition-transform ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-[88vw] max-w-[21rem] flex-col border-r border-border bg-background shadow-2xl shadow-black/35 transition-transform duration-200 ease-out lg:hidden",
+          open ? "translate-x-0" : "-translate-x-full"
+        )}
+        aria-hidden={!open}
       >
-        {content}
+        <div className="flex h-16 items-center justify-between border-b border-border px-4">
+          <Link href="/" onClick={onClose} className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-subtle bg-card">
+              <Activity className="h-4 w-4 text-accent" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold tracking-[0.18em] text-foreground">
+                AI INTELLIGENCE
+              </p>
+              <p className="truncate text-[11px] text-muted-foreground">{activeItem.label}</p>
+            </div>
+          </Link>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-2 text-muted-foreground transition-colors hover:bg-card-hover hover:text-foreground"
+            aria-label="Close navigation"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-5">{navContent}</div>
+      </aside>
+
+      <aside className="hidden w-72 shrink-0 border-r border-border/80 bg-background/95 lg:block xl:w-80">
+        <div className="sticky top-16 h-[calc(100dvh-4rem)] overflow-y-auto px-5 py-6">
+          {navContent}
+        </div>
       </aside>
     </>
   );

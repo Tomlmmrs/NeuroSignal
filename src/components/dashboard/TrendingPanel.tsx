@@ -21,26 +21,26 @@ export default function TrendingPanel({ clusters }: { clusters: Cluster[] }) {
   if (sorted.length === 0) return null;
 
   return (
-    <div className="bg-card border border-border-subtle rounded-lg">
-      <div className="flex items-center gap-2 px-3.5 py-2.5 border-b border-border-subtle">
+    <div className="overflow-hidden rounded-2xl border border-border-subtle bg-card/75">
+      <div className="flex items-center gap-2 border-b border-border-subtle px-4 py-3">
         <Flame className="h-4 w-4 text-warning" />
-        <h2 className="text-xs font-semibold text-foreground">Trending Now</h2>
-        <span className="ml-auto text-[10px] text-muted">{sorted.length}</span>
+        <h2 className="text-sm font-semibold text-foreground">Trending Now</h2>
+        <span className="ml-auto text-[11px] text-muted">{sorted.length}</span>
       </div>
 
       <div className="divide-y divide-border-subtle">
         {sorted.map((cluster) => (
           <div
             key={cluster.id}
-            className="px-3.5 py-2.5 hover:bg-card-hover transition-colors"
+            className="px-4 py-3 transition-colors hover:bg-card-hover"
           >
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h3 className="text-xs font-medium text-foreground truncate">
+                <h3 className="text-sm font-medium text-foreground truncate">
                   {cluster.title}
                 </h3>
                 {cluster.summary && (
-                  <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
                     {cluster.summary}
                   </p>
                 )}
@@ -48,19 +48,19 @@ export default function TrendingPanel({ clusters }: { clusters: Cluster[] }) {
 
               <div className="flex items-center gap-1 shrink-0">
                 <TrendingUp className="h-3 w-3 text-success" />
-                <span className="text-[10px] font-medium text-success">
+                <span className="text-[11px] font-medium text-success">
                   {(cluster.trendVelocity ?? 0).toFixed(1)}
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-1.5">
+            <div className="mt-2 flex items-center gap-2">
               <span
-                className={`text-[10px] ${categoryColors[cluster.category] ?? "text-muted-foreground"}`}
+                className={`text-[11px] ${categoryColors[cluster.category] ?? "text-muted-foreground"}`}
               >
                 {cluster.category}
               </span>
-              <span className="text-[10px] text-muted">
+              <span className="text-[11px] text-muted">
                 {cluster.itemCount ?? 0} item{(cluster.itemCount ?? 0) !== 1 && "s"}
               </span>
             </div>
