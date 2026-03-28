@@ -186,18 +186,21 @@ export default function ItemCard({ item }: { item: Item }) {
     <article className="group rounded-2xl border border-border-subtle bg-card p-4 transition-colors hover:border-border hover:bg-card-hover sm:p-[1.125rem]">
       <div className="mb-3 flex flex-col gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span
-            className={`rounded-full px-2 py-1 text-[10px] font-medium ${
-              categoryColors[item.category] ?? "bg-muted/20 text-muted-foreground"
-            }`}
-          >
-            {(item as any).itemLabel || itemTypeLabels[item.category] || item.category}
-          </span>
-          {(item as any).paperDepth && paperDepthLabels[(item as any).paperDepth] && (
+          {item.category === "research" ? (
             <span
-              className={`rounded-full px-2 py-1 text-[10px] font-medium ${paperDepthLabels[(item as any).paperDepth].color}`}
+              className={`rounded-full px-2 py-1 text-[10px] font-medium ${
+                paperDepthLabels[(item as any).paperDepth]?.color ?? "bg-amber-500/20 text-amber-600"
+              }`}
             >
-              {paperDepthLabels[(item as any).paperDepth].label}
+              {paperDepthLabels[(item as any).paperDepth]?.label ?? "Important Research"}
+            </span>
+          ) : (
+            <span
+              className={`rounded-full px-2 py-1 text-[10px] font-medium ${
+                categoryColors[item.category] ?? "bg-muted/20 text-muted-foreground"
+              }`}
+            >
+              {(item as any).itemLabel || itemTypeLabels[item.category] || item.category}
             </span>
           )}
           {(item as any).paperInclusionReason && (item as any).paperInclusionReason !== "none" && inclusionReasonLabels[(item as any).paperInclusionReason] && (

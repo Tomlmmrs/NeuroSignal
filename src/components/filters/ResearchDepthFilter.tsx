@@ -6,10 +6,10 @@ import { useSearchParams } from "next/navigation";
 import { usePrefetchedNavigation } from "@/components/layout/usePrefetchedNavigation";
 
 const depths = [
-  { key: "all", label: "All Research" },
-  { key: "general", label: "Important" },
-  { key: "intermediate", label: "Notable" },
-  { key: "advanced", label: "Deep / Niche" },
+  { key: "all", label: "All Research", color: "bg-muted/20 text-muted-foreground" },
+  { key: "general", label: "Important", color: "bg-amber-500/20 text-amber-600" },
+  { key: "intermediate", label: "Notable", color: "bg-blue-500/20 text-blue-500" },
+  { key: "advanced", label: "Deep / Niche", color: "bg-purple-500/20 text-purple-500" },
 ] as const;
 
 export default function ResearchDepthFilter() {
@@ -42,11 +42,7 @@ export default function ResearchDepthFilter() {
   };
 
   return (
-    <div className="space-y-2">
-      <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-muted">
-        Research Depth
-      </span>
-      <div className="-mx-1 flex items-center gap-1 overflow-x-auto px-1 pb-1 scrollbar-none">
+    <div className="-mx-1 flex items-center gap-1.5 overflow-x-auto px-1 pb-1 scrollbar-none">
       {depths.map((d) => {
         const isActive = activeDepth === d.key || (!searchParams.has("depth") && d.key === "all");
         return (
@@ -57,10 +53,10 @@ export default function ResearchDepthFilter() {
             onMouseEnter={() => prefetch(getHref(d.key))}
             onFocus={() => prefetch(getHref(d.key))}
             onTouchStart={() => prefetch(getHref(d.key))}
-            className={`rounded-full px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`rounded-full px-3 py-2 text-xs font-medium whitespace-nowrap transition-all ${
               isActive
-                ? "bg-accent/15 text-accent shadow-[inset_0_0_0_1px_rgba(59,130,246,0.22)]"
-                : "bg-background/60 text-muted-foreground hover:bg-card-hover hover:text-foreground"
+                ? `${d.color} ring-1 ring-current/20`
+                : "border border-border-subtle bg-background/60 text-muted-foreground hover:text-foreground"
             }`}
             aria-busy={isPending && isActive}
           >
@@ -71,7 +67,6 @@ export default function ResearchDepthFilter() {
           </button>
         );
       })}
-      </div>
     </div>
   );
 }

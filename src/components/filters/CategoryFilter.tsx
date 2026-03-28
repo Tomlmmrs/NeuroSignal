@@ -9,7 +9,6 @@ const categories = [
   { key: "all", label: "All", color: "bg-muted/20 text-muted-foreground" },
   { key: "model", label: "AI Models", color: "bg-cat-model/20 text-cat-model" },
   { key: "tool", label: "AI Tools", color: "bg-cat-tool/20 text-cat-tool" },
-  { key: "research", label: "Research", color: "bg-cat-research/20 text-cat-research" },
   { key: "company", label: "Companies", color: "bg-cat-company/20 text-cat-company" },
   { key: "opensource", label: "Open Source", color: "bg-cat-opensource/20 text-cat-opensource" },
   { key: "policy", label: "Policy", color: "bg-cat-policy/20 text-cat-policy" },

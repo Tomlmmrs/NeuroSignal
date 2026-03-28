@@ -1,4 +1,4 @@
-export type RankMode = 'latest' | 'important' | 'research';
+export type RankMode = 'latest' | 'research';
 export type Category = 'model' | 'tool' | 'research' | 'company' | 'opensource' | 'policy' | 'market';
 export type SourceType = 'blog' | 'research' | 'news' | 'social' | 'github' | 'release' | 'api' | 'rss';
 export type TimeWindow = '24h' | '3d' | '7d' | '30d' | 'all';
@@ -26,7 +26,6 @@ export const DEFAULT_WEIGHTS: ScoreWeights = {
 
 export const RANK_MODE_LABELS: Record<RankMode, string> = {
   latest: 'Latest',
-  important: 'Most Important',
   research: 'Research to Watch',
 };
 

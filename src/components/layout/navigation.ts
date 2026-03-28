@@ -4,9 +4,9 @@ import {
   Brain,
   Building2,
   Code2,
-  FlaskConical,
+
   Scale,
-  Trophy,
+
   Wrench,
   Zap,
 } from "lucide-react";
@@ -29,7 +29,6 @@ export const navSections: NavSection[] = [
     title: "Views",
     items: [
       { key: "latest", label: "Briefing", icon: Zap, param: "view" },
-      { key: "important", label: "Most Important", icon: Trophy, param: "view" },
       { key: "research", label: "Research to Watch", icon: BookOpen, param: "view" },
     ],
   },
@@ -38,7 +37,6 @@ export const navSections: NavSection[] = [
     items: [
       { key: "model", label: "AI Models", icon: Brain, param: "category" },
       { key: "tool", label: "AI Tools", icon: Wrench, param: "category" },
-      { key: "research", label: "Research", icon: FlaskConical, param: "category" },
       { key: "company", label: "Companies & Labs", icon: Building2, param: "category" },
       { key: "opensource", label: "Open Source", icon: Code2, param: "category" },
       { key: "policy", label: "Policy & Regulation", icon: Scale, param: "category" },

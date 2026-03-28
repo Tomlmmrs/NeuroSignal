@@ -24,7 +24,7 @@ interface PageProps {
 }
 
 function normalizeMode(mode?: string): RankMode {
-  if (mode === "important" || mode === "research") return mode;
+  if (mode === "research") return mode;
   return "latest";
 }
 
@@ -143,11 +143,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             </div>
 
             <div className="mt-3 border-t border-border-subtle pt-3">
-              <CategoryFilter />
-              {mode === "research" && (
-                <div className="mt-3">
-                  <ResearchDepthFilter />
-                </div>
+              {mode === "research" ? (
+                <ResearchDepthFilter />
+              ) : (
+                <CategoryFilter />
               )}
             </div>
 
@@ -209,11 +208,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     <h2 className="text-base font-semibold text-foreground sm:text-lg">
                       {search
                         ? "Search Results"
-                        : mode === "important"
-                          ? "Most Important"
-                          : mode === "research"
-                            ? "Research to Watch"
-                            : "Briefing"}
+                        : mode === "research"
+                          ? "Research to Watch"
+                          : "Briefing"}
                     </h2>
                     <p className="mt-1 text-sm text-muted-foreground">
                       A simplified feed view based on the current lens and filters.

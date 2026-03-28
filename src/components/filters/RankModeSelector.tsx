@@ -7,7 +7,6 @@ import { usePrefetchedNavigation } from "@/components/layout/usePrefetchedNaviga
 
 const modes = [
   { key: "latest", label: "Briefing" },
-  { key: "important", label: "Most Important" },
   { key: "research", label: "Research" },
 ] as const;
 
@@ -16,8 +15,7 @@ export default function RankModeSelector() {
   const searchKey = searchParams.toString();
   const { isPending, navigate, prefetch } = usePrefetchedNavigation();
   const rawMode = searchParams.get("view");
-  const currentMode =
-    rawMode === "important" || rawMode === "research" ? rawMode : "latest";
+  const currentMode = rawMode === "research" ? rawMode : "latest";
   const [pendingMode, setPendingMode] = useState<string | null>(null);
   const activeMode = pendingMode ?? currentMode;
 

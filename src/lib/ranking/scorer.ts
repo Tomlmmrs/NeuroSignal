@@ -47,14 +47,6 @@ const MODE_WEIGHTS: Record<RankMode, Partial<ScoreWeights>> = {
     practical: 0.0,
     recency: 0.80, // Latest = almost pure recency
   },
-  important: {
-    importance: 0.35,
-    novelty: 0.10,
-    credibility: 0.15,
-    impact: 0.15,
-    practical: 0.05,
-    recency: 0.20,
-  },
   research: {
     importance: 0.20,
     novelty: 0.30,

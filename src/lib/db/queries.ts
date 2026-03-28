@@ -75,9 +75,7 @@ export async function getItems(opts: ItemQueryOptions = {}) {
   conditions.push(isNull(items.duplicateOf));
 
   // Time window — default to 3 days for "latest", 7 days for other modes
-  const defaultWindow: TimeWindow = opts.mode === "latest" ? "3d"
-    : opts.mode === "important" ? "7d"
-    : "all";
+  const defaultWindow: TimeWindow = opts.mode === "latest" ? "3d" : "all";
   const tw = opts.timeWindow ?? defaultWindow;
   const twCond = timeWindowCondition(tw);
   if (twCond) conditions.push(twCond);
@@ -150,9 +148,6 @@ export async function getItems(opts: ItemQueryOptions = {}) {
         desc(sql`COALESCE(${items.publishedAt}, ${items.discoveredAt})`),
         desc(items.compositeScore),
       ];
-      break;
-    case "important":
-      orderBy = [desc(freshnessBoostedScore)];
       break;
     case "research":
       orderBy = [desc(freshnessBoostedScore), desc(items.publishedAt)];
