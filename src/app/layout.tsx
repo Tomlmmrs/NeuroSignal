@@ -42,6 +42,11 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="min-h-screen bg-background text-foreground antialiased">
         {children}
+        <footer className="border-t border-border-subtle py-4 text-center text-[11px] text-muted-foreground">
+          <a href="/impressum" className="hover:text-foreground transition-colors">Impressum</a>
+          <span className="mx-2">|</span>
+          <a href="/privacy" className="hover:text-foreground transition-colors">Privacy</a>
+        </footer>
         <Analytics />
       </body>
     </html>
