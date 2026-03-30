@@ -3,7 +3,8 @@
 import { type FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Brain, Loader2, Menu, PanelLeft, Search, X } from "lucide-react";
+import Image from "next/image";
+import { Loader2, Menu, PanelLeft, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getActiveNavigationState } from "./navigation";
 import { usePrefetchedNavigation } from "./usePrefetchedNavigation";
@@ -75,9 +76,13 @@ export default function Header({
           </button>
 
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-subtle bg-card shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-              <Brain className="h-4 w-4 text-accent" />
-            </div>
+            <Image
+              src="/favicon.svg"
+              alt="NeuroSignal"
+              width={32}
+              height={32}
+              className="rounded-lg"
+            />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold tracking-[0.12em] text-foreground">
                 NeuroSignal
