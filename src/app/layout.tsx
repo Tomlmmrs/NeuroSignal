@@ -26,6 +26,14 @@ export const metadata: Metadata = {
     title: "NeuroSignal",
     description:
       "Curated AI news dashboard tracking model releases, tools, open source, and industry developments.",
+    images: [
+      {
+        url: `${siteUrl}/twitter-image`,
+        width: 1200,
+        height: 630,
+        alt: "NeuroSignal — High-signal AI insights. No noise.",
+      },
+    ],
   },
   icons: {
     icon: "/favicon.svg",

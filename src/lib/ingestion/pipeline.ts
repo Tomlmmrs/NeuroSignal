@@ -17,6 +17,15 @@ import { scorePaper, rewritePaperSummary } from "../ranking/paper-filter";
 import { generateExplanation } from "../ranking/explain";
 import { scoreRealWorldRelevance, assignItemLabel, assignImpactTag } from "../ranking/relevance";
 
+/** Strip HTML tags and markdown images from text */
+function stripHtml(text: string): string {
+  return text
+    .replace(/<[^>]+>/g, "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 // ─── Category Detection ──────────────────────────────────────────────
 const CATEGORY_KEYWORDS: Record<Category, string[]> = {
   model: [
@@ -251,7 +260,7 @@ async function normalize(raw: RawItem, adapter: SourceAdapter): Promise<NewItem>
   const now = new Date().toISOString();
   const isArxiv = adapter.id.startsWith("arxiv") || adapter.id === "hf_papers";
   const rawContent = raw.content ?? "";
-  const content = isArxiv && rawContent ? cleanArxivContent(rawContent) : rawContent;
+  const content = stripHtml(isArxiv && rawContent ? cleanArxivContent(rawContent) : rawContent);
   const category = detectCategory(raw.title, content);
   const company = extractCompany(raw.title, content);
   const isOpenSource = detectOpenSource(raw.title, content, raw.url);
@@ -369,7 +378,7 @@ async function normalize(raw: RawItem, adapter: SourceAdapter): Promise<NewItem>
 
   return {
     id: randomUUID(),
-    title: raw.title.trim(),
+    title: stripHtml(raw.title),
     url: normalizedUrl,
     canonicalUrl: normalizedUrl !== raw.url.trim() ? normalizedUrl : null,
     source: adapter.id,
